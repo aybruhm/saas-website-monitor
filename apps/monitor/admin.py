@@ -12,7 +12,7 @@ class WebsitesAdmin(admin.ModelAdmin):
 
 @admin.register(HistoricalStats)
 class HistoricalStatsAdmin(admin.ModelAdmin):
-    list_display = ["track", "up_counts", "down_counts", "date_created"]
+    list_display = ["track", "uptime_counts", "downtime_counts", "date_created"]
 
 
 @admin.register(People)
