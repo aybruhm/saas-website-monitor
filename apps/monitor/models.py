@@ -93,5 +93,5 @@ class NotifyGroup(ObjectTracker):
         return self.name
 
     class Meta:
-        db_table = "Notify Group"
+        db_table = "notify_group"
         verbose_name_plural = "Notify Group"
