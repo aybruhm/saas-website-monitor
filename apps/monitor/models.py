@@ -39,7 +39,7 @@ class HistoricalStats(ObjectTracker):
         - date_modified (datetime): the date and time the object was modifieds
     """
 
-    track = models.ForeignKey(Websites, on_delete=models.CASCADE)
+    track = models.OneToOneField(Websites, on_delete=models.CASCADE)
     up_counts = models.PositiveBigIntegerField(default=0)
     down_counts = models.PositiveBigIntegerField(default=0)
 
