@@ -33,15 +33,15 @@ class HistoricalStats(ObjectTracker):
     Fields:
         - id (int): the object primary key
         - track (fk): foreign key relationship to the websites table
-        - up_counts (int): the number of uptime counts
-        - down_counts (int): the number of downtime counts
+        - uptime_counts (int): the number of uptime counts
+        - downtime_counts (int): the number of downtime counts
         - date_created (datetime): the date and time the object was created
         - date_modified (datetime): the date and time the object was modifieds
     """
 
     track = models.OneToOneField(Websites, on_delete=models.CASCADE)
-    up_counts = models.PositiveBigIntegerField(default=0)
-    down_counts = models.PositiveBigIntegerField(default=0)
+    uptime_counts = models.PositiveBigIntegerField(default=0)
+    downtime_counts = models.PositiveBigIntegerField(default=0)
 
     def __str__(self) -> str:
         return f"{self.track.site}'s historical stats"
