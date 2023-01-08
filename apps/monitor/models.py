@@ -79,12 +79,14 @@ class NotifyGroup(ObjectTracker):
     Fields:
         - id (int): the object primary key
         - name (str): the name of the group to be notified
+        - notify (fk): a foreign-key relationship to the websites table
         - emails (m2m): a many-to-many relationship to the people table
         - date_created (datetime): the date and time the object was created
         - date_modified (datetime): the date and time the object was modifieds
     """
 
     name = models.CharField(max_length=30, unique=True)
+    notify = models.ForeignKey(Websites, on_delete=models.CASCADE)
     emails = models.ManyToManyField(People, related_name="people_notify_group")
 
     def __str__(self) -> str:
