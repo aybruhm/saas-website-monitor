@@ -6,3 +6,4 @@ httpx==0.23.3
 redis==4.4.1
 celery==5.2.7
 django-celery-beat==2.4.0
+flower==1.2.0
