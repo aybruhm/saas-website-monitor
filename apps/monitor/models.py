@@ -12,12 +12,19 @@ class Websites(ObjectTracker):
     Fields:
         - id (int): the object primary key
         - site (url): the url of the webite
+        - auth_types (str): the authentication type of the website
         - has_authentication (bool): does the site require authentication?
         - date_created (datetime): the date and time the object was created
         - date_modified (datetime): the date and time the object was modified
     """
+    
+    class AuthTypes(models.Choices):
+        BASIC_AUTH = "basic"
+        TOKEN_AUTH = "token"
+        JWT_AUTH = "bearer"
 
     site = models.URLField(unique=True)
+    auth_types = models.CharField(max_length=6, choices=AuthTypes.choices, null=True)
     has_authentication = models.BooleanField(default=False)
 
     def __str__(self) -> str:
@@ -44,6 +51,7 @@ class AuthenticationSchema(ObjectTracker):
     basic_auth = models.JSONField(
         default=basic_auth_json_schema, null=True, blank=True
     )
+    token_auth = models.CharField(max_length=300, null=True, blank=True)
     bearer_auth = models.CharField(max_length=300, null=True, blank=True)
 
     def __str__(self) -> str:
