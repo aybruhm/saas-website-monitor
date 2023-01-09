@@ -1,5 +1,33 @@
+# Stdlib Imports
+from typing import Tuple
+
+# Rest Framework Imports
+from rest_framework import exceptions
+
 # Own Imports
-from apps.monitor.models import Websites, HistoricalStats, NotifyGroup
+from apps.monitor.models import Websites, HistoricalStats
+
+
+def get_website(site: str) -> Tuple[str, bool]:
+    """
+    This function takes in a site, checks if the site requires
+    authentication; if it does return the site and a True bool,
+    otherwise return the site and a False bool.
+
+    :param site: The website you want to get the authentication status of
+    :type site: str
+
+    :return: The website and a boolean value.
+    """
+
+    try:
+        website = Websites.objects.get(site=site)
+    except (Websites.DoesNotExist):
+        raise exceptions.NotFound({"message": "Website does not exist!"})
+
+    if website.has_authentication:
+        return site, True
+    return site, False
 
 
 def get_historical_stats(website: str) -> HistoricalStats:
