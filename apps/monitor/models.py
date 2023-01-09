@@ -38,7 +38,7 @@ class AuthenticationSchema(ObjectTracker):
         - date_modified (datetime): the date and time the object was modified
     """
 
-    def basic_auth_json_schema(cls) -> dict:
+    def basic_auth_json_schema() -> dict:
         return {"username": "", "password": ""}
 
     basic_auth = models.JSONField(
