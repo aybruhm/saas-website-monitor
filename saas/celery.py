@@ -3,6 +3,7 @@ import os
 
 # Celery Imports
 from celery import Celery
+from celery.schedules import crontab
 
 # set the default Django settings module for the 'celery' program.
 # this is also used in manage.py
@@ -18,3 +19,11 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
+
+# Beat schedules
+app.conf.beat_schedule = {
+    "sync_items_to_db": {
+        "task": "apps.monitor.tasks.monitor_websites_up_x_downtimes",
+        "schedule": crontab(minute="*/15"),
+    },
+}
