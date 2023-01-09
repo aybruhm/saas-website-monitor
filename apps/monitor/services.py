@@ -5,10 +5,8 @@ from typing import List
 from django.db import transaction
 
 # Own Imports
-from apps.monitor.utils import (
-    get_historical_stats,
-    notify_group_of_people_via_email,
-)
+from apps.monitor.selectors import get_historical_stats
+from apps.monitor.tasks import notify_group_of_people_via_email
 
 # Third Party Imports
 import httpx
@@ -46,5 +44,5 @@ def monitor_websites(websites: List[str]) -> str:
                 historial_stats.save(update_fields=["downtime_counts"])
 
                 # send mail to group
-                notify_group_of_people_via_email(website)
+                notify_group_of_people_via_email.delay(website)
                 return "Downtime counts has increased with 1."
