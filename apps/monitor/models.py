@@ -12,11 +12,13 @@ class Websites(ObjectTracker):
     Fields:
         - id (int): the object primary key
         - site (url): the url of the webite
+        - has_authentication (bool): does the site require authentication?
         - date_created (datetime): the date and time the object was created
-        - date_modified (datetime): the date and time the object was modifieds
+        - date_modified (datetime): the date and time the object was modified
     """
 
     site = models.URLField(unique=True)
+    has_authentication = models.BooleanField(default=False)
 
     def __str__(self) -> str:
         return str(self.site)
@@ -24,6 +26,34 @@ class Websites(ObjectTracker):
     class Meta:
         db_table = "websites"
         verbose_name_plural = "Websites"
+
+
+class AuthenticationSchema(ObjectTracker):
+    """
+    Defines the database schema for authentication schema table in the database.
+
+    Fields:
+        - id (int): the object primary key
+        - date_created (datetime): the date and time the object was created
+        - date_modified (datetime): the date and time the object was modified
+    """
+
+    def basic_auth_json_schema(cls) -> dict:
+        return {"username": "", "password": ""}
+
+    basic_auth = models.JSONField(
+        default=basic_auth_json_schema, null=True, blank=True
+    )
+    bearer_auth = models.CharField(max_length=300, null=True, blank=True)
+
+    def __str__(self) -> str:
+        if not self.bearer_auth:
+            return self.basic_auth["username"]
+        return self.bearer_auth
+
+    class Meta:
+        db_table = "authentication_schemas"
+        verbose_name_plural = "Authentication Schemas"
 
 
 class HistoricalStats(ObjectTracker):
@@ -36,7 +66,7 @@ class HistoricalStats(ObjectTracker):
         - uptime_counts (int): the number of uptime counts
         - downtime_counts (int): the number of downtime counts
         - date_created (datetime): the date and time the object was created
-        - date_modified (datetime): the date and time the object was modifieds
+        - date_modified (datetime): the date and time the object was modified
     """
 
     track = models.OneToOneField(Websites, on_delete=models.CASCADE)
@@ -59,7 +89,7 @@ class People(ObjectTracker):
         - id (int): the object primary key
         - email_address (str): email address of the user
         - date_created (datetime): the date and time the object was created
-        - date_modified (datetime): the date and time the object was modifieds
+        - date_modified (datetime): the date and time the object was modified
     """
 
     email_address = models.EmailField(unique=True)
@@ -82,7 +112,7 @@ class NotifyGroup(ObjectTracker):
         - notify (fk): a foreign-key relationship to the websites table
         - emails (m2m): a many-to-many relationship to the people table
         - date_created (datetime): the date and time the object was created
-        - date_modified (datetime): the date and time the object was modifieds
+        - date_modified (datetime): the date and time the object was modified
     """
 
     name = models.CharField(max_length=30, unique=True)
