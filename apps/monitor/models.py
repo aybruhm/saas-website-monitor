@@ -41,6 +41,9 @@ class AuthenticationSchema(ObjectTracker):
 
     Fields:
         - id (int): the object primary key
+        - basic_auth (json): basic authentication (requires username and password)
+        - token_auth (str): token authentication (x-api-key)
+        - bearer_auth (str): jwt authentication (jwt, bearer)
         - date_created (datetime): the date and time the object was created
         - date_modified (datetime): the date and time the object was modified
     """
