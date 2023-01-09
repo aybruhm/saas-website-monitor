@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # third party apps
     "rest_framework",
     "drf_yasg",
+    "django_celery_beat",
     # own apps
     "apps.monitor.apps.MonitorConfig",
 ]
