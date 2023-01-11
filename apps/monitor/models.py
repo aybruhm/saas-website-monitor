@@ -38,9 +38,9 @@ class Websites(ObjectTracker):
         verbose_name_plural = "Websites"
 
 
-class AuthenticationSchema(ObjectTracker):
+class AuthenticationScheme(ObjectTracker):
     """
-    Defines the database schema for authentication schema table in the database.
+    Defines the database schema for authentication scheme table in the database.
 
     Fields:
         - id (int): the object primary key
@@ -54,6 +54,7 @@ class AuthenticationSchema(ObjectTracker):
     def basic_auth_json_schema() -> dict:
         return {"username": "", "password": ""}
 
+    site = models.URLField(unique=True)
     basic_auth = models.JSONField(
         default=basic_auth_json_schema, null=True, blank=True
     )
@@ -66,8 +67,8 @@ class AuthenticationSchema(ObjectTracker):
         return self.bearer_auth
 
     class Meta:
-        db_table = "authentication_schemas"
-        verbose_name_plural = "Authentication Schemas"
+        db_table = "authentication_schemes"
+        verbose_name_plural = "Authentication Schemes"
 
 
 class HistoricalStats(ObjectTracker):
