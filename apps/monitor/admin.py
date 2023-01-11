@@ -4,7 +4,7 @@ from django.contrib import admin
 # Own Imports
 from apps.monitor.models import (
     Websites,
-    AuthenticationSchema,
+    AuthenticationScheme,
     HistoricalStats,
     People,
     NotifyGroup,
@@ -16,9 +16,16 @@ class WebsitesAdmin(admin.ModelAdmin):
     list_display = ["site", "has_authentication", "auth_types", "date_created"]
 
 
-@admin.register(AuthenticationSchema)
-class AuthenticationSchemaAdmin(admin.ModelAdmin):
-    list_display = ["id", "basic_auth", "token_auth", "bearer_auth", "date_created"]
+@admin.register(AuthenticationScheme)
+class AuthenticationSchemeAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "site",
+        "basic_auth",
+        "token_auth",
+        "bearer_auth",
+        "date_created",
+    ]
 
 
 @admin.register(HistoricalStats)
