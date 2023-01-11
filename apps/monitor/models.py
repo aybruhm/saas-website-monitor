@@ -5,6 +5,12 @@ from django.db import models
 from apps.monitor.helpers.object_tracker import ObjectTracker
 
 
+class AuthTypes(models.Choices):
+    BASIC_AUTH = "basic"
+    TOKEN_AUTH = "token"
+    JWT_AUTH = "bearer"
+
+
 class Websites(ObjectTracker):
     """
     Defines the database schema for websites table in the database.
@@ -17,14 +23,11 @@ class Websites(ObjectTracker):
         - date_created (datetime): the date and time the object was created
         - date_modified (datetime): the date and time the object was modified
     """
-    
-    class AuthTypes(models.Choices):
-        BASIC_AUTH = "basic"
-        TOKEN_AUTH = "token"
-        JWT_AUTH = "bearer"
 
     site = models.URLField(unique=True)
-    auth_types = models.CharField(max_length=6, choices=AuthTypes.choices, null=True)
+    auth_types = models.CharField(
+        max_length=6, choices=AuthTypes.choices, null=True
+    )
     has_authentication = models.BooleanField(default=False)
 
     def __str__(self) -> str:
