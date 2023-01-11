@@ -10,7 +10,7 @@ from apps.monitor.models import HistoricalStats, Websites, AuthTypes
 
 class WebsiteSerializer(serializers.ModelSerializer):
 
-    auth_types = serializers.CharField(required=False)
+    auth_types = serializers.CharField(required=False, default="basic")
     has_authentication = serializers.BooleanField(default=False)
 
     class Meta:
@@ -32,6 +32,11 @@ class WebsiteSerializer(serializers.ModelSerializer):
         if authenticated and not auth_type:
             raise serializers.ValidationError(
                 {"message": "Authentication type is required."}
+            )
+
+        if not authenticated and auth_type is not None:
+            raise serializers.ValidationError(
+                {"message": "Authentication needs to be set."}
             )
 
     def create(self, validated_data: OrderedDict) -> Websites:
