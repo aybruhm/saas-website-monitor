@@ -1,5 +1,5 @@
 # Stdlib Imports
-from typing import OrderedDict
+from typing import OrderedDict, List
 
 # Django Imports
 from django.db.transaction import atomic
@@ -11,15 +11,19 @@ from rest_framework import serializers
 from apps.monitor.models import (
     HistoricalStats,
     Websites,
+    AuthTypes,
     AuthenticationScheme,
+)
+from apps.monitor.services import (
+    session_authentication,
+    token_authentication,
+    bearer_authentication,
 )
 
 
 class AuthenticationSchemeSerializer(serializers.ModelSerializer):
 
-    session_auth = serializers.JSONField(
-        default={"username": "string", "password": "string"}, required=False
-    )
+    session_auth = serializers.CharField(required=False)
     token_auth = serializers.CharField(required=False)
     bearer_auth = serializers.CharField(required=False)
 
@@ -30,16 +34,32 @@ class AuthenticationSchemeSerializer(serializers.ModelSerializer):
 
 class WebsiteSerializer(serializers.ModelSerializer):
 
-    auth_scheme = AuthenticationSchemeSerializer(required=False)
+    auth_data = serializers.JSONField(
+        default={"username": "string", "password": "string"}, required=False
+    )
+    auth_scheme = serializers.CharField(required=False)
 
     class Meta:
         model = Websites
-        fields = ["site", "auth_scheme"]
+        fields = ["site", "auth_data", "auth_scheme"]
+
+    def get_authentication_schemes(self) -> List:
+        return [scheme for scheme in AuthTypes.choices]
 
     @atomic
     def create(self, validated_data: OrderedDict) -> Websites:
 
-        has_authentication = True if validated_data["auth_scheme"] else False
+        # get website from validated data
+        website = validated_data["site"]
+
+        try:
+            authentication_scheme = validated_data["auth_scheme"]
+        except (KeyError):
+            authentication_scheme = None
+
+        has_authentication = (
+            True if authentication_scheme is not None else False
+        )
 
         # create authentication schema if website needs authentication
         if has_authentication:
@@ -47,32 +67,44 @@ class WebsiteSerializer(serializers.ModelSerializer):
                 site=validated_data["site"],
             )[0]
 
-        try:
-            session_auth = validated_data["auth_scheme"]["session_auth"]
-            token_auth = validated_data["auth_scheme"]["token_auth"]
-            bearer_auth = validated_data["auth_scheme"]["bearer_auth"]
-        except (KeyError):
-            token_auth = None
-            bearer_auth = None
-
         # update authentication schema based on type
-        if session_auth["username"] != "string":
-            authentication_scheme.session_auth = session_auth
+        if validated_data["auth_scheme"] == "session":
+            session_value = session_authentication(
+                website,
+                {
+                    "username": validated_data["username"],
+                    "password": validated_data["password"],
+                },
+            )
+            authentication_scheme.session_auth = session_value
 
-        elif token_auth is not None:
-            authentication_scheme.token_auth = token_auth
+        elif validated_data["auth_scheme"] == "token":
+            token_value = token_authentication(
+                website,
+                {
+                    "username": validated_data["username"],
+                    "password": validated_data["password"],
+                },
+            )
+            authentication_scheme.token_auth = token_value
 
-        elif bearer_auth is not None:
-            authentication_scheme.bearer_auth = bearer_auth
+        elif validated_data["auth_scheme"] == "bearer":
+            jwt_token = bearer_authentication(
+                website,
+                {
+                    "username": validated_data["username"],
+                    "password": validated_data["password"],
+                },
+            )
+            authentication_scheme.bearer_auth = jwt_token
 
-        # save authentication schema to database
-        authentication_scheme.save()
+            # save authentication schema to database
+            authentication_scheme.save()
 
         # return the newly created instance (website)
         return super().create(
             {
                 "site": validated_data["site"],
-                "auth_types": validated_data["auth_types"],
                 "has_authentication": has_authentication,
             }
         )
