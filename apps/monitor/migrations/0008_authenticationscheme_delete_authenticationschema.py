@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                     "basic_auth",
                     models.JSONField(
                         blank=True,
-                        default=apps.monitor.models.AuthenticationScheme.basic_auth_json_schema,
+                        default="",
                         null=True,
                     ),
                 ),
