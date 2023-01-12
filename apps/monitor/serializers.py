@@ -1,52 +1,81 @@
 # Stdlib Imports
-from typing import OrderedDict
+from typing import OrderedDict, Union
+
+# Django Imports
+from django.db.transaction import atomic
 
 # Rest Framework Imports
 from rest_framework import serializers
 
 # Own Imports
-from apps.monitor.models import HistoricalStats, Websites, AuthTypes
+from apps.monitor.models import (
+    HistoricalStats,
+    Websites,
+    AuthenticationScheme,
+)
+
+
+class AuthenticationSchemeSerializer(serializers.ModelSerializer):
+
+    session_auth = serializers.JSONField(
+        default={"username": "string", "password": "string"}, required=False
+    )
+    token_auth = serializers.CharField(required=False)
+    bearer_auth = serializers.CharField(required=False)
+
+    class Meta:
+        model = AuthenticationScheme
+        fields = ["session_auth", "token_auth", "bearer_auth"]
 
 
 class WebsiteSerializer(serializers.ModelSerializer):
 
-    auth_types = serializers.CharField(required=False, default="basic")
-    has_authentication = serializers.BooleanField(default=False)
+    auth_scheme = AuthenticationSchemeSerializer(required=False)
 
     class Meta:
         model = Websites
-        fields = ["site", "auth_types", "has_authentication"]
+        fields = ["site", "auth_scheme"]
 
-    def validate_auth_types(self, value: str) -> str:
-        auth_types = [auth[0] for auth in AuthTypes.choices]
-
-        if value not in auth_types:
-            raise serializers.ValidationError(
-                {"message": "Authentication type not supported."}
-            )
-        return value
-
-    def _ensure_auth_types_requires_authentication_flag(
-        self, authenticated: bool, auth_type: str
-    ):
-        if authenticated and not auth_type:
-            raise serializers.ValidationError(
-                {"message": "Authentication type is required."}
-            )
-
-        if not authenticated and auth_type is not None:
-            raise serializers.ValidationError(
-                {"message": "Authentication needs to be set."}
-            )
-
+    @atomic
     def create(self, validated_data: OrderedDict) -> Websites:
-        # validation to ensure that auth types
-        # requires authentication to be True
-        self._ensure_auth_types_requires_authentication_flag(
-            validated_data["has_authentication"],
-            validated_data["auth_types"],
+
+        has_authentication = True if validated_data["auth_scheme"] else False
+
+        # create authentication schema if website needs authentication
+        if has_authentication:
+            authentication_scheme = AuthenticationScheme.objects.get_or_create(
+                site=validated_data["site"],
+            )[0]
+
+        try:
+            session_auth = validated_data["auth_scheme"]["session_auth"]
+            token_auth = validated_data["auth_scheme"]["token_auth"]
+            bearer_auth = validated_data["auth_scheme"]["bearer_auth"]
+        except (KeyError):
+            token_auth = None
+            bearer_auth = None
+
+        # update authentication schema based on type
+        if session_auth["username"] != "string":
+            authentication_scheme.session_auth = session_auth
+
+        elif token_auth is not None:
+            authentication_scheme.token_auth = token_auth
+
+        elif bearer_auth is not None:
+            authentication_scheme.bearer_auth = bearer_auth
+
+        # save authentication schema to database
+        authentication_scheme.save()
+
+        # return the newly created instance (website)
+        return super().create(
+            {
+                "site": validated_data["site"],
+                "auth_types": validated_data["auth_types"],
+                "has_authentication": has_authentication,
+            }
         )
-        return super().create(validated_data)
 
 
 class HistoricalStatsSerializer(serializers.ModelSerializer):
