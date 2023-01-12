@@ -6,7 +6,7 @@ from apps.monitor.helpers.object_tracker import ObjectTracker
 
 
 class AuthTypes(models.Choices):
-    BASIC_AUTH = "basic"
+    SESSION_AUTH = "session"
     TOKEN_AUTH = "token"
     JWT_AUTH = "bearer"
 
