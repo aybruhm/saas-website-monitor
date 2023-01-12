@@ -11,6 +11,11 @@ class AuthTypes(models.Choices):
     JWT_AUTH = "bearer"
 
 
+class StatusTypes(models.Choices):
+    UP = "up"
+    DOWN = "down"
+
+
 class Websites(ObjectTracker):
     """
     Defines the database schema for websites table in the database.
@@ -18,15 +23,15 @@ class Websites(ObjectTracker):
     Fields:
         - id (int): the object primary key
         - site (url): the url of the webite
-        - auth_types (str): the authentication type of the website
+        - status (str): the status (up, down) of the website
         - has_authentication (bool): does the site require authentication?
         - date_created (datetime): the date and time the object was created
         - date_modified (datetime): the date and time the object was modified
     """
 
     site = models.URLField(unique=True)
-    auth_types = models.CharField(
-        max_length=6, choices=AuthTypes.choices, null=True
+    status = models.CharField(
+        max_length=4, choices=StatusTypes.choices, null=True, blank=True
     )
     has_authentication = models.BooleanField(default=False)
 
@@ -44,27 +49,20 @@ class AuthenticationScheme(ObjectTracker):
 
     Fields:
         - id (int): the object primary key
-        - basic_auth (json): basic authentication (requires username and password)
+        - session_auth (str): session authentication (requires username and password)
         - token_auth (str): token authentication (x-api-key)
         - bearer_auth (str): jwt authentication (jwt, bearer)
         - date_created (datetime): the date and time the object was created
         - date_modified (datetime): the date and time the object was modified
     """
 
-    def basic_auth_json_schema() -> dict:
-        return {"username": "", "password": ""}
-
     site = models.URLField(unique=True)
-    basic_auth = models.JSONField(
-        default=basic_auth_json_schema, null=True, blank=True
-    )
+    session_auth = models.CharField(max_length=300, null=True, blank=True)
     token_auth = models.CharField(max_length=300, null=True, blank=True)
     bearer_auth = models.CharField(max_length=300, null=True, blank=True)
 
     def __str__(self) -> str:
-        if not self.bearer_auth:
-            return self.basic_auth["username"]
-        return self.bearer_auth
+        return f"{self.site}'s authentication scheme"
 
     class Meta:
         db_table = "authentication_schemes"
@@ -73,11 +71,11 @@ class AuthenticationScheme(ObjectTracker):
 
 class HistoricalStats(ObjectTracker):
     """
-    Defines the database schema for historical_stats table in the database.
+    Defines the database schema for historical stats table in the database.
 
     Fields:
         - id (int): the object primary key
-        - track (fk): foreign key relationship to the websites table
+        - track (o2o): one-two-one key relationship to the websites table
         - uptime_counts (int): the number of uptime counts
         - downtime_counts (int): the number of downtime counts
         - date_created (datetime): the date and time the object was created
