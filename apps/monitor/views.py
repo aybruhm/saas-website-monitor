@@ -26,12 +26,10 @@ class AddWebsiteAPIView(generics.CreateAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
-        response = {
-            "message": "Website to monitor added!",
-            "data": serializer.data,
-        }
-        return Response(data=response, status=status.HTTP_201_CREATED)
+        return Response(
+            {"message": "Website to monitor added!"},
+            status=status.HTTP_201_CREATED,
+        )
 
 
 class GetLogsOfHistoricalStatsAPIView(generics.GenericAPIView):
