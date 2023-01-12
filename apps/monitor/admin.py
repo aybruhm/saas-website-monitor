@@ -13,7 +13,7 @@ from apps.monitor.models import (
 
 @admin.register(Websites)
 class WebsitesAdmin(admin.ModelAdmin):
-    list_display = ["site", "has_authentication", "auth_types", "date_created"]
+    list_display = ["site", "status", "has_authentication", "date_created"]
 
 
 @admin.register(AuthenticationScheme)
@@ -21,7 +21,7 @@ class AuthenticationSchemeAdmin(admin.ModelAdmin):
     list_display = [
         "id",
         "site",
-        "basic_auth",
+        "session_auth",
         "token_auth",
         "bearer_auth",
         "date_created",
