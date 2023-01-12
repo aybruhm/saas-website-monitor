@@ -1,5 +1,5 @@
 # Stdlib Imports
-from typing import OrderedDict, Union
+from typing import OrderedDict
 
 # Django Imports
 from django.db.transaction import atomic
