@@ -172,3 +172,27 @@ class GetLogsOfHistoricalStatsTestCase(APITestCase):
             response.json()["message"], "Log of historical stats retrieved!"
         )
         self.assertEqual(len(response.json()["data"]), 1)
+
+
+class RegisterUserTestCase(APITestCase):
+    """Test case for register user api view."""
+
+    def setUp(self) -> None:
+        """Setup fixtures for register user test case."""
+
+        self.payload = {
+            "email": "user@example.com",
+            "username": "string",
+            "password": "string",
+        }
+
+    def test_register_user(self):
+        """Ensure that we can register a new user."""
+
+        url = reverse("monitor:register_user")
+        response = client.post(url, data=self.payload, format="json")
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(
+            response.json()["message"], "User created successful!"
+        )
