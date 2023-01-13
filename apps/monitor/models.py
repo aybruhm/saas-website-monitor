@@ -40,6 +40,7 @@ class Websites(ObjectTracker):
 
     class Meta:
         db_table = "websites"
+        ordering = ["-date_created"]
         verbose_name_plural = "Websites"
 
 
@@ -66,6 +67,7 @@ class AuthenticationScheme(ObjectTracker):
 
     class Meta:
         db_table = "authentication_schemes"
+        ordering = ["-date_created"]
         verbose_name_plural = "Authentication Schemes"
 
 
@@ -91,6 +93,7 @@ class HistoricalStats(ObjectTracker):
 
     class Meta:
         db_table = "historical_stats"
+        ordering = ["-date_created"]
         verbose_name_plural = "Historial Stats"
 
 
@@ -112,6 +115,7 @@ class People(ObjectTracker):
 
     class Meta:
         db_table = "people"
+        ordering = ["-date_created"]
         verbose_name_plural = "People"
 
 
@@ -137,4 +141,5 @@ class NotifyGroup(ObjectTracker):
 
     class Meta:
         db_table = "notify_group"
+        ordering = ["-date_created"]
         verbose_name_plural = "Notify Group"
