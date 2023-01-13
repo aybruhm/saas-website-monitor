@@ -122,3 +122,53 @@ class AddWebsiteTestCase(APITestCase):
         url = reverse("monitor:add_website")
 
         ...
+
+
+class GetLogsOfHistoricalStatsTestCase(APITestCase):
+    """Test case for get logs of historical stats api view."""
+
+    def setUp(self) -> None:
+        """Setup fixtutes for get logs of historical stats test case."""
+
+        self.user = User.objects.create(
+            email="user.test@test.com",
+            username="user.test",
+            password="user.test",
+        )
+        self.user.set_password("user.test")
+        self.user.save()
+
+        self.website = Websites.objects.create(site="http://127.0.0.1:8000/")
+        self.historical_stats = HistoricalStats.objects.create(
+            track=self.website
+        )
+
+    def test_unauthenticated_get_logs_of_historical_stats(self):
+        """
+        Ensure that we can get a list of historical stats logs,
+        and the request is not authenticated.
+        """
+
+        url = reverse("monitor:historical_stats")
+
+        client.logout()
+        response = client.get(url)
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_authenticated_get_logs_of_historical_stats(self):
+        """
+        Ensure that we can get a list of historical stats logs,
+        and the request is authenticated.
+        """
+
+        url = reverse("monitor:historical_stats")
+
+        client.force_authenticate(self.user)
+        response = client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response.json()["message"], "Log of historical stats retrieved!"
+        )
+        self.assertEqual(len(response.json()["data"]), 1)
