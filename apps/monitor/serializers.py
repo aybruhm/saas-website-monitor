@@ -3,9 +3,10 @@ from typing import OrderedDict, List
 
 # Django Imports
 from django.db.transaction import atomic
+from django.contrib.auth.models import User
 
 # Rest Framework Imports
-from rest_framework import serializers
+from rest_framework import serializers, exceptions
 
 # Own Imports
 from apps.monitor.models import (
@@ -158,3 +159,27 @@ class WriteOnlyWebsiteSerializer(serializers.ModelSerializer):
                 "has_authentication": has_authentication,
             }
         )
+
+
+class CreateUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["email", "username", "password"]
+
+    def validate_email(self, value: str) -> str:
+        if User.objects.filter(email=value).exists():
+            raise exceptions.NotFound({"message": "User does exist!"})
+        return value
+
+    def create(self, validated_data: OrderedDict) -> User:
+
+        user = User.objects.create(**dict(validated_data))
+        user.set_password(validated_data["password"])
+        user.save()
+
+        return user
+
+
+class LoginUserSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
