@@ -8,7 +8,7 @@ from rest_framework import exceptions
 from apps.monitor.models import Websites, HistoricalStats
 
 
-def get_website(site: str) -> Tuple[str, bool]:
+def get_website(site: str) -> Tuple[Websites, bool]:
     """
     This function takes in a site, checks if the site requires
     authentication; if it does return the site and a True bool,
@@ -26,8 +26,8 @@ def get_website(site: str) -> Tuple[str, bool]:
         raise exceptions.NotFound({"message": "Website does not exist!"})
 
     if website.has_authentication:
-        return site, True
-    return site, False
+        return website, True
+    return website, False
 
 
 def get_historical_stats(website: str) -> HistoricalStats:
