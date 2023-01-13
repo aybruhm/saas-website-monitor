@@ -118,39 +118,39 @@ class WriteOnlyWebsiteSerializer(serializers.ModelSerializer):
                 site=validated_data["site"],
             )[0]
 
-        # update authentication schema based on type
-        if validated_data["auth_scheme"] == "session":
-            session_value = session_authentication(
-                website,
-                {
-                    "username": validated_data["username"],
-                    "password": validated_data["password"],
-                },
-            )
-            authentication_scheme.session_auth = session_value
+            # update authentication schema based on type
+            if validated_data["auth_scheme"] == "session":
+                session_value = session_authentication(
+                    website,
+                    {
+                        "username": validated_data["username"],
+                        "password": validated_data["password"],
+                    },
+                )
+                authentication_scheme.session_auth = session_value
 
-        elif validated_data["auth_scheme"] == "token":
-            token_value = token_authentication(
-                website,
-                {
-                    "username": validated_data["username"],
-                    "password": validated_data["password"],
-                },
-            )
-            authentication_scheme.token_auth = token_value
+            elif validated_data["auth_scheme"] == "token":
+                token_value = token_authentication(
+                    website,
+                    {
+                        "username": validated_data["username"],
+                        "password": validated_data["password"],
+                    },
+                )
+                authentication_scheme.token_auth = token_value
 
-        elif validated_data["auth_scheme"] == "bearer":
-            jwt_token = bearer_authentication(
-                website,
-                {
-                    "username": validated_data["username"],
-                    "password": validated_data["password"],
-                },
-            )
-            authentication_scheme.bearer_auth = jwt_token
+            elif validated_data["auth_scheme"] == "bearer":
+                jwt_token = bearer_authentication(
+                    website,
+                    {
+                        "username": validated_data["username"],
+                        "password": validated_data["password"],
+                    },
+                )
+                authentication_scheme.bearer_auth = jwt_token
 
-            # save authentication schema to database
-            authentication_scheme.save()
+                # save authentication schema to database
+                authentication_scheme.save()
 
         # return the newly created instance (website)
         return super().create(
