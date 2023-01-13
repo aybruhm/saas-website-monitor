@@ -111,7 +111,6 @@ def monitor_websites_up_and_downtimes() -> str:
                                 "Authorization": f"Bearer {authentication_scheme.bearer_auth}"
                             },
                         )
-                        print('Response: ', response.json())
 
                 if response.status_code == 200:
 
