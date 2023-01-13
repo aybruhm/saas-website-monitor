@@ -18,7 +18,7 @@ class StatusTypes(models.Choices):
 
 class Websites(ObjectTracker):
     """
-    Defines the database schema for websites table in the database.
+    Defines the schema for websites table in the database.
 
     Fields:
         - id (int): the object primary key
@@ -45,12 +45,12 @@ class Websites(ObjectTracker):
 
 class AuthenticationScheme(ObjectTracker):
     """
-    Defines the database schema for authentication scheme table in the database.
+    Defines the schema for authentication scheme table in the database.
 
     Fields:
         - id (int): the object primary key
         - session_auth (str): session authentication (requires username and password)
-        - token_auth (str): token authentication (x-api-key)
+        - token_auth (str): token authentication (x-api-key, token)
         - bearer_auth (str): jwt authentication (jwt, bearer)
         - date_created (datetime): the date and time the object was created
         - date_modified (datetime): the date and time the object was modified
@@ -71,7 +71,7 @@ class AuthenticationScheme(ObjectTracker):
 
 class HistoricalStats(ObjectTracker):
     """
-    Defines the database schema for historical stats table in the database.
+    Defines the schema for historical stats table in the database.
 
     Fields:
         - id (int): the object primary key
@@ -96,7 +96,7 @@ class HistoricalStats(ObjectTracker):
 
 class People(ObjectTracker):
     """
-    Defines the database schema for people table in the database.
+    Defines the schema for people table in the database.
 
     Fields:
         - id (int): the object primary key
@@ -117,7 +117,7 @@ class People(ObjectTracker):
 
 class NotifyGroup(ObjectTracker):
     """
-    Defines the database schema for notify_group table in the database.
+    Defines the schema for notify group table in the database.
 
     Fields:
         - id (int): the object primary key
