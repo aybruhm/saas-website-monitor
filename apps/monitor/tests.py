@@ -196,3 +196,32 @@ class RegisterUserTestCase(APITestCase):
         self.assertEqual(
             response.json()["message"], "User created successful!"
         )
+
+
+class LoginUserTestCase(APITestCase):
+    """Test case for login user api view."""
+
+    def setUp(self) -> None:
+        """Setup fixtures for login user test case."""
+
+        self.user = User.objects.create(
+            email="user.test@test.com",
+            username="user.test",
+            password="user.test",
+        )
+        self.user.set_password("user.test")
+        self.user.save()
+
+        self.payload = {
+            "username": self.user.username,
+            "password": "user.test",
+        }
+
+    def test_login_user(self):
+        """Ensure that we can login a user."""
+
+        url = reverse("monitor:login_user")
+        response = client.post(url, data=self.payload, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["message"], "Login successful!")
