@@ -7,8 +7,11 @@ from rest_framework.response import Response
 from apps.monitor.models import HistoricalStats, AuthTypes
 from apps.monitor.serializers import (
     HistoricalStatsSerializer,
-    WebsiteSerializer,
+    WriteOnlyWebsiteSerializer,
+    ReadOnlyWebsiteSerializer,
 )
+from apps.monitor.selectors import get_website
+from apps.monitor.utils import validate_protocol
 
 
 class AuthenticationTypesAPIView(generics.ListAPIView):
@@ -18,9 +21,27 @@ class AuthenticationTypesAPIView(generics.ListAPIView):
         return Response(data=data, status=status.HTTP_200_OK)
 
 
+class GetWebsiteAPIView(generics.RetrieveAPIView):
+
+    serializer_class = ReadOnlyWebsiteSerializer
+
+    def get(
+        self, request: Request, protocol: str, domain_name: str
+    ) -> Response:
+        website = get_website(
+            validate_protocol(protocol) + "://" + domain_name + "/"
+        )
+        serializer = self.serializer_class(website)
+
+        return Response(
+            {"message": "Website info retrieved!", "data": serializer.data},
+            status=status.HTTP_200_OK,
+        )
+
+
 class AddWebsiteAPIView(generics.CreateAPIView):
 
-    serializer_class = WebsiteSerializer
+    serializer_class = WriteOnlyWebsiteSerializer
 
     def post(self, request: Request) -> Response:
         serializer = self.serializer_class(data=request.data)
