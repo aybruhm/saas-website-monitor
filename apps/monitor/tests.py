@@ -225,3 +225,16 @@ class LoginUserTestCase(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["message"], "Login successful!")
+
+
+class LogoutUserTestCase(APITestCase):
+    """Test case for logout user api view."""
+
+    def test_logout_user(self):
+        """Ensure that a user can logout."""
+
+        url = reverse("monitor:logout_user")
+        response = client.post(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["message"], "User logout successful!")
