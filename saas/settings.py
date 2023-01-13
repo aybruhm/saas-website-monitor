@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     "drf_yasg",
     "django_celery_beat",
     # own apps
-    "apps.monitor.apps.MonitorConfig",
+    "apps.monitor",
 ]
 
 MIDDLEWARE = [
@@ -151,9 +151,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Celery Definition
-CELERY_BROKER_URL = environ(
-    "CELERY_BROKER_REDIS_URL", default="redis://localhost:6379"
-)
+CELERY_BROKER_URL = environ("CELERY_BROKER_REDIS_URL")
 RESULT_BACKEND = environ("CELERY_RESULT_BACKEND")
 ACCEPT_CONTENT = ["application/json"]
 TASK_SERIALIZER = "json"
