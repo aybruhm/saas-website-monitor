@@ -3,6 +3,7 @@ from rest_framework.test import APIClient, APITestCase
 
 # Django Imports
 from django.urls import reverse
+from django.contrib.auth.models import User
 
 # Own Imports
 from apps.monitor.models import Websites, HistoricalStats
@@ -56,19 +57,30 @@ class AddWebsiteTestCase(APITestCase):
     def setUp(self) -> None:
         """Setup fixtures for adding websites test case."""
 
-        self.no_auth_payload = {"site": "http://testserver"}
+        self.user = User.objects.create(
+            email="user.test@test.com",
+            username="user.test",
+            password="user.test",
+        )
+        self.user.set_password("user.test")
+        self.user.save()
+
+        self.no_auth_payload = {"site": "http://testserver.com"}
         self.session_auth_payload = {
-            "site": "string",
-            "auth_data": {"username": "string", "password": "string"},
+            "site": "http://127.0.0.1:8000/api/login/",
+            "auth_data": {
+                "username": self.user.username,
+                "password": "user.test",
+            },
             "auth_scheme": "session",
         }
         self.token_auth_payload = {
-            "site": "string",
+            "site": "http://testserver.com",
             "auth_data": {"username": "string", "password": "string"},
             "auth_scheme": "token",
         }
         self.bearer_auth_payload = {
-            "site": "string",
+            "site": "http://testserver.com",
             "auth_data": {"username": "string", "password": "string"},
             "auth_scheme": "bearer",
         }
@@ -77,9 +89,36 @@ class AddWebsiteTestCase(APITestCase):
         """Ensure that we can add a website that has not authentication."""
 
         url = reverse("monitor:add_website")
-        response = client.post(url, data=self.payload)
+        response = client.post(url, data=self.no_auth_payload, format="json")
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(
             response.json()["message"], "Website to monitor added!"
         )
+
+    def test_add_website_with_session_authentication(self):
+        """Ensure that we can add a website that has session authentication."""
+
+        url = reverse("monitor:add_website")
+        response = client.post(
+            url, data=self.session_auth_payload, format="json"
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(
+            response.json()["message"], "Website to monitor added!"
+        )
+
+    def test_add_website_with_token_authentication(self):
+        """Ensure that we can add a website that has token authentication."""
+
+        url = reverse("monitor:add_website")
+
+        ...
+
+    def test_add_website_with_bearer_authentication(self):
+        """Ensure that we can add a website that has jwt authentication."""
+
+        url = reverse("monitor:add_website")
+
+        ...
