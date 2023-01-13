@@ -25,7 +25,12 @@ app.autodiscover_tasks()
 # Beat schedules
 app.conf.beat_schedule = {
     "monitor_websites": {
-        "task": "apps.monitor.tasks.monitor_websites_up_x_downtimes",
+        "task": "monitor_websites_up_and_downtimes",
         "schedule": crontab(minute="*/2"),
     },
 }
+
+
+@app.task(bind=True)
+def hello_world(self):
+    print("Hello world!!!")
