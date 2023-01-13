@@ -77,6 +77,16 @@ TEMPLATES = [
 WSGI_APPLICATION = "saas.wsgi.application"
 
 
+# Rest Framework
+# https://www.django-rest-framework.org/api-guide/permissions/
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ]
+}
+
+
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
