@@ -1,10 +1,10 @@
 # Rest Framework Imports
-from rest_framework import generics, status, exceptions
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework import generics, status, exceptions, permissions
 
 # Django Imports
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 
 # Own Imports
 from apps.monitor.models import HistoricalStats, AuthTypes
@@ -62,6 +62,7 @@ class GetLogsOfHistoricalStatsAPIView(generics.GenericAPIView):
 
     serializer_class = HistoricalStatsSerializer
     queryset = HistoricalStats.objects.select_related("track")
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request: Request) -> Response:
         historical_stats = self.get_queryset()
@@ -85,7 +86,7 @@ class RegisterUserAPIView(generics.CreateAPIView):
         serializer.save()
 
         return Response(
-            {"message": "User created successfully!"},
+            {"message": "User created successful!"},
             status=status.HTTP_201_CREATED,
         )
 
@@ -109,4 +110,14 @@ class LoginUserAPIView(generics.CreateAPIView):
             )
 
         login(request, user)
-        return Response({"message": "Login successful!"}, status=status.HTTP_200_OK)
+        return Response(
+            {"message": "Login successful!"}, status=status.HTTP_200_OK
+        )
+
+
+class LogoutUserAPIView(generics.CreateAPIView):
+    def post(self, request: Request) -> Response:
+        logout(request)
+        return Response(
+            {"message": "User logout successful!"}, status=status.HTTP_200_OK
+        )

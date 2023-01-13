@@ -10,6 +10,7 @@ from apps.monitor.views import (
     # auth imports
     RegisterUserAPIView,
     LoginUserAPIView,
+    LogoutUserAPIView,
 )
 
 
@@ -19,6 +20,7 @@ app_name = "monitor"
 auth_routes = [
     path("register/", RegisterUserAPIView.as_view(), name="register_user"),
     path("login/", LoginUserAPIView.as_view(), name="login_user"),
+    path("logout/", LogoutUserAPIView.as_view(), name="logout_user"),
 ]
 
 urlpatterns = [
