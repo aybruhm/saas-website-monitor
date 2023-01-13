@@ -2,6 +2,7 @@
 from django.contrib import admin
 from django.conf import settings
 from django.urls import path, include, re_path
+from django.conf.urls.static import static
 
 # Third Party Imports
 from drf_yasg.views import get_schema_view
@@ -30,5 +31,6 @@ if settings.DEBUG:
             r"^docs/$",
             schema_view.with_ui("swagger", cache_timeout=0),
             name="api_docs",
-        )
+        ),
+        static(settings.STATIC_URL, document_root=settings.STATIC_ROOT),
     ]
