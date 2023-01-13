@@ -50,6 +50,7 @@ class AuthenticationScheme(ObjectTracker):
 
     Fields:
         - id (int): the object primary key
+        - site (str): the site the authentication scheme belongs to
         - session_auth (str): session authentication (requires username and password)
         - token_auth (str): token authentication (x-api-key, token)
         - bearer_auth (str): jwt authentication (jwt, bearer)
