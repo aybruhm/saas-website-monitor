@@ -16,3 +16,7 @@ A saas backend application that tracks and monitors website(s) up and down times
 - enforces authorization on system-system data exchange via a scheme of choice
 - for data exchange interface provided to be able to return a properly encrypted analyzed historical data that is ready for use
 - and every other standard SaaS software requirement
+
+### API Docs
+
+<img width="1280" alt="saas-monitor-website" src="https://user-images.githubusercontent.com/55067204/212409296-0e652cf7-da6d-44ff-832f-febc4a06c8ea.png">
