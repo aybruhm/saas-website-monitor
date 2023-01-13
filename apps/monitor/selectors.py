@@ -1,6 +1,3 @@
-# Stdlib Imports
-from typing import Tuple
-
 # Rest Framework Imports
 from rest_framework import exceptions
 
@@ -8,7 +5,7 @@ from rest_framework import exceptions
 from apps.monitor.models import Websites, HistoricalStats
 
 
-def get_website(site: str) -> Tuple[Websites, bool]:
+def get_website(site: str) -> Websites:
     """
     This function takes in a site, checks if the site requires
     authentication; if it does return the site and a True bool,
@@ -25,9 +22,7 @@ def get_website(site: str) -> Tuple[Websites, bool]:
     except (Websites.DoesNotExist):
         raise exceptions.NotFound({"message": "Website does not exist!"})
 
-    if website.has_authentication:
-        return website, True
-    return website, False
+    return website
 
 
 def get_historical_stats(website: str) -> HistoricalStats:

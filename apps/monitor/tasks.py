@@ -71,7 +71,7 @@ def monitor_websites_up_x_downtimes(websites: List[str]) -> str:
                 client.get(website),
                 get_historical_stats(website),
             )
-            site, _ = get_website(website)
+            site = get_website(website)
 
             if response.status_code == 200:
 
