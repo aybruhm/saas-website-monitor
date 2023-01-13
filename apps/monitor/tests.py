@@ -145,7 +145,7 @@ class GetLogsOfHistoricalStatsTestCase(APITestCase):
 
     def test_unauthenticated_get_logs_of_historical_stats(self):
         """
-        Ensure that we can get a list of historical stats logs,
+        Ensure that a user can get a list of historical stats logs,
         and the request is not authenticated.
         """
 
@@ -158,7 +158,7 @@ class GetLogsOfHistoricalStatsTestCase(APITestCase):
 
     def test_authenticated_get_logs_of_historical_stats(self):
         """
-        Ensure that we can get a list of historical stats logs,
+        Ensure that a user can get a list of historical stats logs,
         and the request is authenticated.
         """
 
@@ -187,7 +187,7 @@ class RegisterUserTestCase(APITestCase):
         }
 
     def test_register_user(self):
-        """Ensure that we can register a new user."""
+        """Ensure that a user can register an account."""
 
         url = reverse("monitor:register_user")
         response = client.post(url, data=self.payload, format="json")
@@ -218,7 +218,7 @@ class LoginUserTestCase(APITestCase):
         }
 
     def test_login_user(self):
-        """Ensure that we can login a user."""
+        """Ensure that a user can login."""
 
         url = reverse("monitor:login_user")
         response = client.post(url, data=self.payload, format="json")
