@@ -4,9 +4,13 @@ from django.db import transaction
 from django.core.mail import send_mail as send_mail_to_group, get_connection
 
 # Own Imports
-from apps.monitor.models import NotifyGroup, StatusTypes, Websites
+from apps.monitor.models import (
+    NotifyGroup,
+    StatusTypes,
+    Websites,
+    AuthenticationScheme,
+)
 from apps.monitor.selectors import get_historical_stats, get_website
-from apps.monitor.tasks import notify_group_of_people_via_email
 
 # Celery Imports
 from celery import shared_task
@@ -15,7 +19,7 @@ from celery import shared_task
 import httpx
 
 
-@shared_task(max_retries=3)
+@shared_task(name="notify_group_of_people_via_email", max_retries=3)
 def notify_group_of_people_via_email(website: str) -> str:
     """
     This function notifies a group of people via email when a website is down.
@@ -49,9 +53,8 @@ def notify_group_of_people_via_email(website: str) -> str:
     return "Mail sent successfully!"
 
 
-@transaction.atomic
-@shared_task(max_tries=3)
-def monitor_websites_up_x_downtimes() -> str:
+@shared_task(name="monitor_websites_up_and_downtimes", max_tries=3)
+def monitor_websites_up_and_downtimes() -> str:
     """
     This function checks if the website is up or down,
     and if it's down, it sends an email to a group of people.
@@ -59,41 +62,83 @@ def monitor_websites_up_x_downtimes() -> str:
     :return: A string of message.
     """
 
-    with httpx.Client() as client:
-        for website in list(Websites.objects.values_list("site", flat=True)):
-            
-            # get the response of the website,
-            # and the historical stats of the website
-            response, historial_stats = (
-                client.get(website),
-                get_historical_stats(website),
-            )
-            
-            # get the site object
-            site = get_website(website)
+    with transaction.atomic():
+        # wrap query in an atomic transaction
 
-            if response.status_code == 200:
+        with httpx.Client() as client:
+            for website in list(
+                Websites.objects.values_list("site", flat=True)
+            ):
 
-                # save up time to db
-                historial_stats.uptime_counts += 1
-                historial_stats.save(update_fields=["uptime_counts"])
+                # get the historical stats of the
+                # website and the site object
+                site = get_website(website)
+                historical_stats = get_historical_stats(website)
 
-                # update site uptime
-                site.status = StatusTypes.UP
-                site.save(update_fields=["status"])
+                # if site does not has authentication,
+                # get the response of the website without
+                # no authentication scheme
+                if not site.has_authentication:
+                    response = client.get(website)
 
-                return "Uptime counts has increased with 1."
+                elif site.has_authentication:
 
-            elif response.status_code in [500, 502, 503, 504]:
+                    # get the authentication scheme of the website
+                    authentication_scheme = AuthenticationScheme.objects.get(
+                        site=website
+                    )
 
-                # save down time to db
-                historial_stats.downtime_counts += 1
-                historial_stats.save(update_fields=["downtime_counts"])
+                    # get the response of the website based on the session
+                    if authentication_scheme.session_auth is not None:
+                        response = client.get(
+                            website, cookies=authentication_scheme.session_auth
+                        )
 
-                # update site downtime
-                site.status = StatusTypes.DOWN
-                site.save(update_fields=["status"])
+                    # get the response of the website based on the token
+                    elif authentication_scheme.token_auth is not None:
+                        response = client.get(
+                            website,
+                            headers={
+                                "Authorization": f"Token {authentication_scheme.token_auth}"
+                            },
+                        )
 
-                # send mail to group
-                notify_group_of_people_via_email.delay(website)
-                return "Downtime counts has increased with 1."
+                    # get the response of the website based on the bearer
+                    elif authentication_scheme.bearer_auth is not None:
+                        response = client.get(
+                            website,
+                            headers={
+                                "Authorization": f"Bearer {authentication_scheme.bearer_auth}"
+                            },
+                        )
+                        print('Response: ', response.json())
+
+                if response.status_code == 200:
+
+                    # save up time to db
+                    historical_stats.uptime_counts += 1
+                    historical_stats.save(update_fields=["uptime_counts"])
+
+                    # update site uptime
+                    site.status = StatusTypes.UP
+                    site.save(update_fields=["status"])
+
+                    print(f"Uptime counts for {website} has increased with 1.")
+
+                elif response.status_code in [500, 502, 503, 504]:
+
+                    # save down time to db
+                    historical_stats.downtime_counts += 1
+                    historical_stats.save(update_fields=["downtime_counts"])
+
+                    # update site downtime
+                    site.status = StatusTypes.DOWN
+                    site.save(update_fields=["status"])
+
+                    # send mail to group
+                    notify_group_of_people_via_email.delay(website)
+                    print(
+                        f"Downtime counts for {website} has increased with 1."
+                    )
+
+            return "Monitoring done!"
