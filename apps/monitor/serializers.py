@@ -32,7 +32,7 @@ class AuthenticationSchemeSerializer(serializers.ModelSerializer):
         fields = ["session_auth", "token_auth", "bearer_auth"]
 
 
-class WebsiteSerializer(serializers.ModelSerializer):
+class WriteOnlyWebsiteSerializer(serializers.ModelSerializer):
 
     auth_data = serializers.JSONField(
         default={"username": "string", "password": "string"}, required=False
