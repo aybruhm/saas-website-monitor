@@ -132,7 +132,7 @@ USE_TZ = True
 # SMTP Configuration
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = environ("EMAIL_HOST", cast=str)
-EMAIL_PORT = environ("EMAIL_PORT", cast=str)
+EMAIL_PORT = environ("EMAIL_PORT", cast=int)
 EMAIL_HOST_USER = environ("EMAIL_USER", cast=str)
 EMAIL_HOST_PASSWORD = environ("EMAIL_PASSWORD", cast=str)
 EMAIL_USE_TLS = True
