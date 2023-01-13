@@ -32,6 +32,56 @@ class AuthenticationSchemeSerializer(serializers.ModelSerializer):
         fields = ["session_auth", "token_auth", "bearer_auth"]
 
 
+class HistoricalStatsSerializer(serializers.ModelSerializer):
+
+    track = serializers.CharField(source="track.site")
+
+    class Meta:
+        model = HistoricalStats
+        fields = [
+            "id",
+            "track",
+            "uptime_counts",
+            "downtime_counts",
+            "date_created",
+            "date_modified",
+        ]
+        read_only_fields = fields
+
+
+class ReadOnlyWebsiteSerializer(serializers.ModelSerializer):
+
+    historical_data = serializers.SerializerMethodField()
+
+    class OwnHistoricalStatsSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = HistoricalStats
+            fields = [
+                "uptime_counts",
+                "downtime_counts",
+                "date_created",
+                "date_modified",
+            ]
+            read_only_fields = fields
+
+    class Meta:
+        model = Websites
+        fields = [
+            "id",
+            "site",
+            "status",
+            "has_authentication",
+            "historical_data",
+        ]
+        read_only_fields = fields
+
+    def get_historical_data(self, obj: Websites) -> dict:
+        historical_data = HistoricalStats.objects.filter(
+            track__site=obj.site
+        ).first()
+        return self.OwnHistoricalStatsSerializer(historical_data).data
+
+
 class WriteOnlyWebsiteSerializer(serializers.ModelSerializer):
 
     auth_data = serializers.JSONField(
@@ -108,20 +158,3 @@ class WriteOnlyWebsiteSerializer(serializers.ModelSerializer):
                 "has_authentication": has_authentication,
             }
         )
-
-
-class HistoricalStatsSerializer(serializers.ModelSerializer):
-
-    track = serializers.CharField(source="track.site")
-
-    class Meta:
-        model = HistoricalStats
-        fields = [
-            "id",
-            "track",
-            "uptime_counts",
-            "downtime_counts",
-            "date_created",
-            "date_modified",
-        ]
-        read_only_fields = fields
