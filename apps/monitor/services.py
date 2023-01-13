@@ -2,67 +2,61 @@
 import httpx
 
 
-def session_authentication(website: str, data: dict) -> dict:
+# This class is used to authenticate with a website
+class Authentication:
     """
-    This function takes a website and a dictionary of data,
-    and returns the cookies from the response.
+    This class service is responsible for authenticating a website, with:
 
-    :param website: The website you want to authenticate to
-    :type website: str
-
-    :param data: The data that you want to send to the website
-    :type data: dict
-
-    :return: A dictionary of cookies
+    - session authentication
+    - token authentication
+    - jwt authentication
     """
 
-    auth_data = {"username": data["username"], "password": data["password"]}
-    response = httpx.post(website, data=auth_data)
-    return response.cookies
+    def __init__(self, website: str, username: str, password: str) -> None:
+        self.website = website
+        self.username = username
+        self.password = password
 
+    def authenticate_with_session(self) -> dict:
+        """
+        This method takes no arguments and returns a dictionary of cookies.
 
-def token_authentication(website: str, data: dict) -> str:
-    """
-    This function takes in a website and a dictionary of data, and returns a token.
+        :return: A dictionary of cookies.
+        """
 
-    :param website: The website you want to authenticate with
-    :type website: str
+        auth_data = {"username": self.username, "password": self.password}
+        response = httpx.post(self.website, data=auth_data)
+        return response.cookies
 
-    :param data: This is the data that you want to send to the server
-    :type data: dict
+    def authenticate_with_token(self) -> str:
+        """
+        This method takes in a username and password and returns a token.
 
-    :return: The token is being returned.
-    """
+        :return: The token is being returned.
+        """
 
-    auth_data = {"username": data["username"], "password": data["password"]}
-    response = httpx.post(website, data=auth_data)
+        auth_data = {"username": self.username, "password": self.password}
+        response = httpx.post(self.website, data=auth_data, format="json")
 
-    try:
-        token = response.json()["data"]["token"]
-    except (KeyError):
-        token = response.json()["token"]
-    return token
+        try:
+            token = response.json()["data"]["token"]
+        except (KeyError):
+            token = response.json()["token"]
+        return token
 
+    def authenticate_with_jwt(self) -> str:
+        """
+        This method takes the username and password from the class and
+        uses them to authenticate with the website.
 
-def bearer_authentication(website: str, data: dict) -> str:
-    """
-    This function takes a website and a dictionary of data, and returns a JWT token.
+        :return: A JWT token.
+        """
 
-    :param website: The website you want to authenticate with
-    :type website: str
+        auth_data = {"username": self.username, "password": self.password}
+        response = httpx.post(self.website, data=auth_data, format="json")
 
-    :param data: This is the data that you want to send to the website
-    :type data: dict
-
-    :return: A JWT token.
-    """
-
-    auth_data = {"username": data["username"], "password": data["password"]}
-    response = httpx.post(website, data=auth_data)
-
-    try:
-        jwt_token = response.json()["data"]["access"]
-    except (KeyError):
-        jwt_token = response.json()["access"]
-    return jwt_token
-
+        try:
+            jwt_token = response.json()["data"]["access"]
+        except (KeyError):
+            jwt_token = response.json()["access"]
+        return jwt_token
