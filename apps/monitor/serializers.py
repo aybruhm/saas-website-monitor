@@ -15,11 +15,7 @@ from apps.monitor.models import (
     AuthTypes,
     AuthenticationScheme,
 )
-from apps.monitor.services import (
-    session_authentication,
-    token_authentication,
-    bearer_authentication,
-)
+from apps.monitor.services import Authentication
 
 
 class AuthenticationSchemeSerializer(serializers.ModelSerializer):
@@ -118,39 +114,28 @@ class WriteOnlyWebsiteSerializer(serializers.ModelSerializer):
                 site=validated_data["site"],
             )[0]
 
+            # initialize the authentication service
+            auth_service = Authentication(
+                website,
+                validated_data["auth_data"]["username"],
+                validated_data["auth_data"]["password"],
+            )
+
             # update authentication schema based on type
             if validated_data["auth_scheme"] == "session":
-                session_value = session_authentication(
-                    website,
-                    {
-                        "username": validated_data["username"],
-                        "password": validated_data["password"],
-                    },
-                )
+                session_value = auth_service.authenticate_with_session()
                 authentication_scheme.session_auth = session_value
 
             elif validated_data["auth_scheme"] == "token":
-                token_value = token_authentication(
-                    website,
-                    {
-                        "username": validated_data["username"],
-                        "password": validated_data["password"],
-                    },
-                )
+                token_value = auth_service.authenticate_with_token()
                 authentication_scheme.token_auth = token_value
 
             elif validated_data["auth_scheme"] == "bearer":
-                jwt_token = bearer_authentication(
-                    website,
-                    {
-                        "username": validated_data["username"],
-                        "password": validated_data["password"],
-                    },
-                )
-                authentication_scheme.bearer_auth = jwt_token
+                jwt_token_value = auth_service.authenticate_with_jwt()
+                authentication_scheme.bearer_auth = jwt_token_value
 
-                # save authentication schema to database
-                authentication_scheme.save()
+            # save authentication schema to database
+            authentication_scheme.save()
 
         # return the newly created instance (website)
         return super().create(
