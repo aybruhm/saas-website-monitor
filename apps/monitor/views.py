@@ -1,7 +1,10 @@
 # Rest Framework Imports
-from rest_framework import generics, status
+from rest_framework import generics, status, exceptions
 from rest_framework.request import Request
 from rest_framework.response import Response
+
+# Django Imports
+from django.contrib.auth import authenticate, login
 
 # Own Imports
 from apps.monitor.models import HistoricalStats, AuthTypes
@@ -9,6 +12,8 @@ from apps.monitor.serializers import (
     HistoricalStatsSerializer,
     WriteOnlyWebsiteSerializer,
     ReadOnlyWebsiteSerializer,
+    CreateUserSerializer,
+    LoginUserSerializer,
 )
 from apps.monitor.selectors import get_website
 from apps.monitor.utils import validate_protocol
@@ -68,3 +73,40 @@ class GetLogsOfHistoricalStatsAPIView(generics.GenericAPIView):
             },
             status=status.HTTP_200_OK,
         )
+
+
+class RegisterUserAPIView(generics.CreateAPIView):
+
+    serializer_class = CreateUserSerializer
+
+    def post(self, request: Request) -> Response:
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {"message": "User created successfully!"},
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class LoginUserAPIView(generics.CreateAPIView):
+
+    serializer_class = LoginUserSerializer
+
+    def post(self, request: Request) -> Response:
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = authenticate(
+            request,
+            username=serializer.validated_data["username"],
+            password=serializer.validated_data["password"],
+        )
+        if user is None:
+            raise exceptions.NotFound(
+                {"message": "User credentials not found!"}
+            )
+
+        login(request, user)
+        return Response({"message": "Login successful!"}, status=status.HTTP_200_OK)

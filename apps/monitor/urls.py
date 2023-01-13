@@ -1,5 +1,5 @@
 # Django Imports
-from django.urls import path
+from django.urls import path, include
 
 # Own Imports
 from apps.monitor.views import (
@@ -7,10 +7,19 @@ from apps.monitor.views import (
     AddWebsiteAPIView,
     GetLogsOfHistoricalStatsAPIView,
     GetWebsiteAPIView,
+    # auth imports
+    RegisterUserAPIView,
+    LoginUserAPIView,
 )
 
 
 app_name = "monitor"
+
+
+auth_routes = [
+    path("register/", RegisterUserAPIView.as_view(), name="register_user"),
+    path("login/", LoginUserAPIView.as_view(), name="login_user"),
+]
 
 urlpatterns = [
     path(
@@ -28,4 +37,6 @@ urlpatterns = [
         GetLogsOfHistoricalStatsAPIView.as_view(),
         name="historical_stats",
     ),
+    # auth include
+    path("auth/", include(auth_routes)),
 ]
