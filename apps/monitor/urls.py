@@ -33,6 +33,7 @@ urlpatterns = [
     path(
         "get-website/<str:protocol>/<str:domain_name>/",
         GetWebsiteAPIView.as_view(),
+        name="get_website"
     ),
     path(
         "historical-stats/",
