@@ -14,7 +14,10 @@ from apps.monitor.models import (
     Websites,
     AuthTypes,
     AuthenticationScheme,
+    People,
+    NotifyGroup,
 )
+from apps.monitor.selectors import get_website
 from apps.monitor.services import Authentication
 
 
@@ -27,6 +30,52 @@ class AuthenticationSchemeSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuthenticationScheme
         fields = ["session_auth", "token_auth", "bearer_auth"]
+
+
+class NotifyPeopleGroupSerializer(serializers.ModelSerializer):
+    class PeopleSerializer(serializers.Serializer):
+        email = serializers.EmailField(
+            help_text="The email address of whom you want to add to group."
+        )
+
+    notify = serializers.URLField(
+        help_text="Website to notify group of downtime."
+    )
+    emails = PeopleSerializer(many=True)
+
+    class Meta:
+        model = NotifyGroup
+        fields = ["id", "name", "notify", "emails"]
+
+    def create(self, validated_data: OrderedDict) -> NotifyGroup:
+
+        # modifiy validated data
+        data = validated_data
+        data["notify"] = get_website(data["notify"])
+
+        # list of people emails
+        people_emails = []
+
+        # create people emails
+        for email_data in data["emails"]:
+            people, _ = People.objects.get_or_create(
+                email_address=email_data["email"]
+            )
+            people.save(update_fields=["email_address"])
+
+            # append people to list
+            people_emails.append(people)
+
+        # create group to notify
+        notify_group = NotifyGroup.objects.create(
+            name=data["name"], notify=data["notify"]
+        )
+
+        # set people emails and save to database
+        notify_group.emails.set(people_emails)
+        notify_group.save()
+
+        return notify_group
 
 
 class HistoricalStatsSerializer(serializers.ModelSerializer):
