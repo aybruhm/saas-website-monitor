@@ -124,6 +124,39 @@ class AddWebsiteTestCase(APITestCase):
         ...
 
 
+class AddNotifyGroupTestCase(APITestCase):
+    """Test case for add notify group api view."""
+
+    def setUp(self) -> None:
+        """Setup fixtures for add notify group test case."""
+
+        self.website = Websites.objects.create(site="http://127.0.0.1:8000/")
+        self.user = User.objects.create(
+            email="user.test@test.com",
+            username="user.test",
+            password="user.test",
+        )
+
+        self.payload = {
+            "name": "test-group",
+            "notify": "http://127.0.0.1:8000/",
+            "emails": [
+                {"email": "user.test@test.com"},
+            ],
+        }
+
+    def test_add_notify_group(self):
+        """Ensure that we can add a group to notify."""
+
+        url = reverse("monitor:add_notify_group")
+        response = client.post(url, data=self.payload, format="json")
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(
+            response.json()["message"], "Group to notify created."
+        )
+
+
 class GetLogsOfHistoricalStatsTestCase(APITestCase):
     """Test case for get logs of historical stats api view."""
 
