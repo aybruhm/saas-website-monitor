@@ -26,7 +26,7 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     "monitor_websites": {
         "task": "monitor_websites_up_and_downtimes",
-        "schedule": crontab(minute="*/30"),
+        "schedule": crontab(minute="*/15"),
     },
 }
 
