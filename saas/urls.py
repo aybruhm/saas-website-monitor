@@ -40,7 +40,7 @@ schema_view = get_schema_view(
 urlpatterns = [
     # generic routes
     path("", root_view, name="root"),
-    path("admin/", admin.site.urls),
+    path(":abc/backoffice/", admin.site.urls),
     # api routes
     path("api/", include("apps.monitor.urls")),
     # api docs
