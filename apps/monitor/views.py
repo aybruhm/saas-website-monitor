@@ -72,7 +72,7 @@ class AddNotifyGroupAPIView(generics.CreateAPIView):
         serializer.save()
 
         return Response(
-            {"message": "Group to nofity created."},
+            {"message": "Group to notify created."},
             status=status.HTTP_201_CREATED,
         )
 
