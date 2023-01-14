@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 from apps.monitor.models import HistoricalStats, AuthTypes
 from apps.monitor.serializers import (
     HistoricalStatsSerializer,
+    NotifyPeopleGroupSerializer,
     WriteOnlyWebsiteSerializer,
     ReadOnlyWebsiteSerializer,
     CreateUserSerializer,
@@ -39,7 +40,10 @@ class GetWebsiteAPIView(generics.RetrieveAPIView):
         serializer = self.serializer_class(website)
 
         return Response(
-            {"message": "Website info retrieved!", "data": serializer.data},
+            {
+                "message": "Website info retrieved!",
+                "data": serializer.data,
+            },
             status=status.HTTP_200_OK,
         )
 
@@ -54,6 +58,21 @@ class AddWebsiteAPIView(generics.CreateAPIView):
         serializer.save()
         return Response(
             {"message": "Website to monitor added!"},
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class AddNotifyGroupAPIView(generics.CreateAPIView):
+
+    serializer_class = NotifyPeopleGroupSerializer
+
+    def post(self, request: Request) -> Response:
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(
+            {"message": "Group to nofity created."},
             status=status.HTTP_201_CREATED,
         )
 
