@@ -38,7 +38,6 @@ class GetWebsiteAPIView(generics.RetrieveAPIView):
             validate_protocol(protocol) + "://" + domain_name + "/"
         )
         serializer = self.serializer_class(website)
-
         return Response(
             {
                 "message": "Website info retrieved!",
@@ -70,7 +69,6 @@ class AddNotifyGroupAPIView(generics.CreateAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
         return Response(
             {"message": "Group to notify created."},
             status=status.HTTP_201_CREATED,
@@ -103,7 +101,6 @@ class RegisterUserAPIView(generics.CreateAPIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
         return Response(
             {"message": "User created successful!"},
             status=status.HTTP_201_CREATED,

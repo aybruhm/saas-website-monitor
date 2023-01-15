@@ -6,7 +6,6 @@ A saas backend application that tracks and monitors website(s) up and down times
 
 <img width="1280" alt="saas-monitor-website" src="https://user-images.githubusercontent.com/55067204/212466106-399906fa-7795-4773-81d9-c660cb8d63f5.png">
 
-
 ## Features
 
 - Monitors, detects and tracks website's up and down times

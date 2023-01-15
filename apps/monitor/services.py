@@ -2,7 +2,6 @@
 import httpx
 
 
-# This class is used to authenticate with a website
 class Authentication:
     """
     This class service is responsible for authenticating a website, with:
@@ -17,7 +16,7 @@ class Authentication:
         self.username = username
         self.password = password
 
-    def authenticate_with_session(self) -> dict:
+    def with_session(self) -> dict:
         """
         This method takes no arguments and returns a dictionary of cookies.
 
@@ -28,7 +27,7 @@ class Authentication:
         response = httpx.post(self.website, data=auth_data)
         return response.cookies
 
-    def authenticate_with_token(self) -> str:
+    def with_token(self) -> str:
         """
         This method takes in a username and password and returns a token.
 
@@ -44,7 +43,7 @@ class Authentication:
             token = response.json()["token"]
         return token
 
-    def authenticate_with_jwt(self) -> str:
+    def with_jwt(self) -> str:
         """
         This method takes the username and password from the class and
         uses them to authenticate with the website.
