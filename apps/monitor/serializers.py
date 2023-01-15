@@ -145,8 +145,10 @@ class WriteOnlyWebsiteSerializer(serializers.ModelSerializer):
     @atomic
     def create(self, validated_data: OrderedDict) -> Websites:
 
-        # get website from validated data
+        # get fields from validated data
         website = validated_data["site"]
+        username = validated_data["username"]
+        password = validated_data["password"]
 
         try:
             authentication_scheme = validated_data["auth_scheme"]
@@ -160,28 +162,19 @@ class WriteOnlyWebsiteSerializer(serializers.ModelSerializer):
         # create authentication schema if website needs authentication
         if has_authentication:
             authentication_scheme = AuthenticationScheme.objects.get_or_create(
-                site=validated_data["site"],
+                site=website,
             )[0]
 
             # initialize the authentication service
-            auth_service = Authentication(
-                website,
-                validated_data["auth_data"]["username"],
-                validated_data["auth_data"]["password"],
-            )
+            authenticate = Authentication(website, username, password)
 
             # update authentication schema based on type
             if validated_data["auth_scheme"] == "session":
-                session_value = auth_service.authenticate_with_session()
-                authentication_scheme.session_auth = session_value
-
+                authentication_scheme.session_auth = authenticate.with_session()
             elif validated_data["auth_scheme"] == "token":
-                token_value = auth_service.authenticate_with_token()
-                authentication_scheme.token_auth = token_value
-
+                authentication_scheme.token_auth = authenticate.with_token()
             elif validated_data["auth_scheme"] == "bearer":
-                jwt_token_value = auth_service.authenticate_with_jwt()
-                authentication_scheme.bearer_auth = jwt_token_value
+                authentication_scheme.bearer_auth = authenticate.with_jwt()
 
             # save authentication schema to database
             authentication_scheme.save()
@@ -189,7 +182,7 @@ class WriteOnlyWebsiteSerializer(serializers.ModelSerializer):
         # return the newly created instance (website)
         return super().create(
             {
-                "site": validated_data["site"],
+                "site": website,
                 "has_authentication": has_authentication,
             }
         )
